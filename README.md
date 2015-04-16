@@ -8,26 +8,32 @@ Docker container for [zoneminder v1.28.1][3]
 
   - [Docker][2]
 
-To install docker in Ubuntu 14.04 use the commands:
+To install docker in Ubuntu 12.04+ use the commands:
 
-    $ sudo apt-get update
-    $ sudo apt-get install docker.io
+    sudo apt-get update sudo && apt-get install -y aufs-tools apparmor && wget -qO- https://get.docker.com/ | sh
 
- To install docker in other operating systems check [docker online documentation][4]
+I also recommend adding yourself to the docker group so that you don't have to type sudo all the flipping time:
+
+    sudo usermod -aG docker YOURUSERNAME
 
 ## Usage
 
-To run container use the command below:
+If you're lazy and don't want to build it yourself just run this and throw a party on camera:
 
-    $ docker run -d -p 80 quantumobject/docker-zoneminder
+    $ docker run -d --name mysql -e MYSQL_DATABASE=zm -e MYSQL_ROOT_PASSWORD=my-secret-password mysql
+
+    $ docker run -d --link mysql -p 443:443 --privileged=true -e DB_HOST=mysql -e DB_USER=root -e DB_NAME=zm -e DB_PASS=my-secret-password hrwebasst/docker-zoneminder
+
+### Note
+
+    We suggest running this with a mysql database but if you do not provide a DB_HOST variable we will assume that you want to risk losing your database if your docker host dies or leave the container.
 
 ## Accessing the Zoneminder applications:
 
 After that check with your browser at addresses plus the port assigined by docker:
 
-  - **http://host_ip:port/**
+  - **https://host_ip/zm**
 
-Them log in with login/password : admin/admin , Please change password right away and check on-line [documentation][6] to configured zoneminder.
 
 note: ffmpeg was added and path for it is /usr/local/bin/ffmpeg  if needed for configuration at options .
 

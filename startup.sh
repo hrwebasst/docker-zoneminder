@@ -18,3 +18,11 @@ else
         #start external process that will wait for apache and mysql start to run one time 
         /sbin/zm.sh &
 fi
+
+if [ -v DB_HOST ]; then
+        if ! mysql -u $DB_USER -p $DB_PASS -h $DB_HOST -e "use ${DB_NAME}"; then
+        mysql -u $DB_USER -p $DB_PASS -h $DB_HOST $DB_NAME < /usr/share/zoneminder/db/zm_create.sql
+        fi
+fi
+
+tail -f /var/log/mysqld.log /var/log/zm.log /var/log/apache2.log

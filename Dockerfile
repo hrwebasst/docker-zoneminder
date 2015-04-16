@@ -9,7 +9,6 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu utopic-backports main restricted 
 RUN add-apt-repository ppa:iconnor/zoneminder
 RUN apt-get update && apt-get install -y -q software-properties-common \
                                         python-software-properties \
-                                        mysql-server  \
                                         libvlc-dev  \
                                         libvlccore-dev\
                                         libapache2-mod-perl2 \
@@ -24,10 +23,6 @@ copy ffmpeg.sh /tmp/ffmpeg.sh
 RUN chmod +x /tmp/ffmpeg.sh \
     && /bin/bash -c /tmp/ffmpeg.sh
 
-# to add mysqld deamon to runit
-RUN mkdir /etc/service/mysqld
-COPY mysqld.sh /etc/service/mysqld/run
-RUN chmod +x /etc/service/mysqld/run
 
 # to add apache2 deamon to runit
 RUN mkdir /etc/service/apache2
@@ -52,17 +47,20 @@ RUN chmod +x /sbin/pre-conf \
     && /bin/bash -c /sbin/pre-conf \
     && rm /sbin/pre-conf
 
-##scritp that can be running from the outside using docker-bash tool ...
+##script that can be running from the outside using docker-bash tool ...
 ## for example to create backup for database with convitation of VOLUME   dockers-bash container_ID backup_mysql
 COPY backup.sh /sbin/backup
 RUN chmod +x /sbin/backup
-VOLUME /var/backups
+VOLUME /var/backups /usr/share/zoneminder/events /usr/share/zoneminder/images
 
 
 RUN mkdir -p /etc/apache2/conf.d
 RUN ln -s /etc/zm/apache.conf /etc/apache2/conf.d/zoneminder.conf
 RUN ln -s /etc/zm/apache.conf /etc/apache2/conf-enabled/zoneminder.conf
-RUN a2enmod cgi
+
+RUN a2enmod cgi ssl
+COPY site.crt /etc/apache2/site.crt
+COPY site.key /etc/apache2/site.key
 RUN adduser www-data video
 RUN cd /usr/src \
     && wget http://www.andywilcock.com/code/cambozola/cambozola-latest.tar.gz \
@@ -71,12 +69,12 @@ RUN cd /usr/src \
     && rm /usr/src/cambozola-latest.tar.gz \
     && rm -R /usr/src/cambozola-0.936
     
-RUN echo "!/bin/sh ntpdate ntp.ubuntu.com" >> /etc/cron.daily/ntpdate \
+RUN echo "#!/bin/sh ntpdate ntp.ubuntu.com" >> /etc/cron.daily/ntpdate \
     && chmod 750 /etc/cron.daily/ntpdate
 
 # to allow access from outside of the container  to the container service
 # at that ports need to allow access from firewall if need to access it outside of the server. 
-EXPOSE 80
+EXPOSE 443
 
 # Use baseimage-docker's init system.
 CMD ["/sbin/my_init"]
