@@ -1,6 +1,5 @@
 #!/bin/bash
 
-  DEBIAN_FRONTEND=noninteractive apt-get update
   DEBIAN_FRONTEND=noninteractive apt-get install -y -q mysql-server zoneminder
   /usr/bin/mysqld_safe &
   sleep 10s
@@ -26,12 +25,7 @@
  sed -i -e '1i<VirtualHost *:443>\' /etc/zm/apache.conf
  sed -i '/443>/aSSLEngine on\nSSLCertificateFile \/etc\/apache2\/site.crt\nSSLCertificateKeyFile \/etc\/apache2\/site.key' /etc/zm/apache.conf
  sed -i -e "\$a<\/VirtualHost>" /etc/zm/apache.conf
- #allow for env vars
- sed -i -e"s/^ZM_DB_HOST=localhost/ZM_DB_HOST=\${DB_HOST:-localhost}/" /etc/zm/zm.conf
- sed -i -e"s/^ZM_DB_NAME=zm/ZM_DB_NAME=\${DB_NAME:-zm}/" /etc/zm/zm.conf
- sed -i -e"s/^ZM_DB_USER=zmuser/ZM_DB_USER=\${DB_USER:-zmuser}/" /etc/zm/zm.conf
- sed -i -e"s/^ZM_DB_PASS=zmpass/ZM_DB_PASS=\${DB_PW:-zmpass}/" /etc/zm/zm.conf
- 
+
  #to clear some data before saving this layer ...a docker image
  rm -R /var/www/html
  rm /etc/apache2/sites-enabled/000-default.conf

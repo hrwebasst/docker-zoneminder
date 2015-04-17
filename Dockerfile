@@ -12,10 +12,7 @@ RUN apt-get update && apt-get install -y -q software-properties-common \
                                         libvlc-dev  \
                                         libvlccore-dev\
                                         libapache2-mod-perl2 \
-                                        vlc \
-                    && apt-get clean \
-                    && rm -rf /tmp/* /var/tmp/*  \
-                    && rm -rf /var/lib/apt/lists/*
+                                        vlc
 
 #remove temporal to fix some other problem and check others .. 
 #install ffmpeg
@@ -44,7 +41,7 @@ RUN chmod +x /etc/my_init.d/startup.sh
 #maybe include additional software that need to be installed ... with some service running ... like example mysqld
 COPY pre-conf.sh /sbin/pre-conf
 RUN chmod +x /sbin/pre-conf \
-    && /bin/bash -c /sbin/pre-conf \
+    && /bin/bash /sbin/pre-conf \
     && rm /sbin/pre-conf
 
 ##script that can be running from the outside using docker-bash tool ...

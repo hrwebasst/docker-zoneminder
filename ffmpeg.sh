@@ -1,6 +1,6 @@
 #!/bin/sh
 
-apt-get update && apt-get install -y -q build-essential \
+apt-get install -y -q build-essential \
                               git-core \
                               checkinstall \
                               yasm \
@@ -33,6 +33,3 @@ FFMPEG_VERSION=2.6
  ffmpeg -version
  
  rm -R "/usr/local/src/ffmpeg-${FFMPEG_VERSION}"
- apt-get clean 
- rm -rf /tmp/* /var/tmp/*
- rm -rf /var/lib/apt/lists/*

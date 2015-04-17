@@ -20,13 +20,23 @@ I also recommend adding yourself to the docker group so that you don't have to t
 
 If you're lazy and don't want to build it yourself just run this and throw a party on camera:
 
-    $ docker run -d --name mysql -e MYSQL_DATABASE=zm -e MYSQL_ROOT_PASSWORD=my-secret-password mysql
-
-    $ docker run -d --link mysql -p 443:443 --privileged=true -e DB_HOST=mysql -e DB_USER=root -e DB_NAME=zm -e DB_PASS=my-secret-password hrwebasst/docker-zoneminder
+    (optional)$ docker run -d -e MYSQL_ROOT_PASSWORD=uberpass -e MYSQL_DATABASE=zm -e MYSQL_USER=zm -e MYSQL_PASSWORD=my-secret-pass --name=mysql mysql
+    $ docker run -d --name=zoneminder --link=mysql:mysql -p 443:443 --privileged=true -e DB_HOST=mysql -e DB_USER=zm -e DB_NAME=zm -e DB_PASS=my-secret-password hrwebasst/docker-zoneminder
+    
+    if you don't use an external DB then don't use the environment variables on the zoneminder container
 
 ### Note
 
     We suggest running this with a mysql database but if you do not provide a DB_HOST variable we will assume that you want to risk losing your database if your docker host dies or leave the container.
+
+### Optional
+
+   volumes for each container:
+   mysql: /var/lib/mysql 
+   Zoneminder: /var/backups /usr/share/zoneminder/events /usr/share/zoneminder/images
+   
+   this way you can map all of your folders outside of the containers in case you need to dump a container and rebuild it.
+
 
 ## Accessing the Zoneminder applications:
 
