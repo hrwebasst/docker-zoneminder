@@ -26,15 +26,14 @@ if [ -v DB_HOST ]; then
  	sed -i -e 's/^ZM_DB_PASS=zmpass/ZM_DB_PASS='"$DB_PW"'/' /etc/zm/zm.conf
         echo '[client]' > /root/.my.cnf
  	echo "password=${DB_PW}" >> /root/.my.cnf
-#        if ! mysql -u $DB_USER -h $DB_HOST -e "use ${DB_NAME}"; then
-#        mysql -u $DB_USER -h $DB_HOST $DB_NAME < /usr/share/zoneminder/db/zm_create.sql
-#        fi
 
+        fix_strict="SET @@global.sql_mode= ''"
 	count='select count(*) from information_schema.tables where table_type = "BASE TABLE" and table_schema = "${DB_NAME}"'
 	mysql -h $DB_HOST -u $DB_USER $DB_NAME -e "$count" > /var/lib/mysql/mysql_status.txt 
 	stat=`cat /var/lib/mysql/mysql_status.txt | tail -1`
 	rm -rf /var/lib/mysql/mysql_status.txt
 	if [ "$stat" = "0" ]; then
+        mysql -u root -h $DB_HOST $DB_NAME -e "$fix_strict"
 	mysql -u $DB_USER -h $DB_HOST $DB_NAME < /usr/share/zoneminder/db/zm_create.sql
 	fi
 

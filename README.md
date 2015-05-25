@@ -20,16 +20,23 @@ I also recommend adding yourself to the docker group so that you don't have to t
 
 If you're lazy and don't want to build it yourself just run this and throw a party on camera:
 
-    (optional)$ docker run -d -e MYSQL_ROOT_PASSWORD=uberpass -e MYSQL_DATABASE=zm -e MYSQL_USER=zm -e MYSQL_PASSWORD=my-secret-pass --name=mysql mysql
+    $ docker run -d -e MYSQL_ROOT_PASSWORD=uberpass -e MYSQL_DATABASE=zm -e MYSQL_USER=zm -e MYSQL_PASSWORD=my-secret-pass --name=mysql mysql
     $ docker run -d --name=zoneminder --link=mysql:mysql -p 443:443 --privileged=true -e DB_HOST=mysql -e DB_USER=zm -e DB_NAME=zm -e DB_PASS=my-secret-password hrwebasst/docker-zoneminder
     
-    if you don't use an external DB then don't use the environment variables on the zoneminder container
+    There is an issue with shared memory in zoneminder with adding cameras. When you add one part of the 64M of shared memory gets used. You can see this with a simple df -h inside the container.
+
+    In order to fix this we run the docker in privileged mode and on startup it runs the following:
+    umount /dev/shm
+mount -t tmpfs -o rw,nosuid,nodev,noexec,relatime,size=${MEM:-2048M} tmpfs /dev/shm
+
+    if you'd like to change the amount of memory shared for camera usage then pass in the MEM environment variable when you run the host.
 
 ### Note
 
-    We suggest running this with a mysql database but if you do not provide a DB_HOST variable we will assume that you want to risk losing your database if your docker host dies or leave the container.
+    This container does not host a database and must be connected to an external MYSQL server. Mysql recently became incompatible with zoneminder and I had to add the following to modify strict mode:
+    SET @@global.sql_mode= '';
 
-### Optional
+### Recommended
 
    volumes for each container:
    mysql: /var/lib/mysql 
@@ -51,7 +58,7 @@ note: ffmpeg was added and path for it is /usr/local/bin/ffmpeg  if needed for c
 
 About zoneminder [www.zoneminder.com][1]
 
-To help improve this container [quantumobject/docker-zoneminder][5]
+Original basis for this [quantumobject/docker-zoneminder][5]
 
 [1]:http://www.zoneminder.com/
 [2]:https://www.docker.com
