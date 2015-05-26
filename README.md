@@ -21,8 +21,8 @@ I also recommend adding yourself to the docker group so that you don't have to t
 If you're lazy and don't want to build it yourself just run this and throw a party on camera:
 
     $ docker run -d -e MYSQL_ROOT_PASSWORD=uberpass -e MYSQL_DATABASE=zm -e MYSQL_USER=zm -e MYSQL_PASSWORD=my-secret-pass --name=mysql mysql
-    $ docker run -d --name=zoneminder --link=mysql:mysql -p 443:443 --privileged=true -e DB_HOST=mysql -e DB_USER=zm -e DB_NAME=zm -e DB_PASS=my-secret-password hrwebasst/docker-zoneminder
-    
+    $ docker run -d --name=zoneminder --link=mysql:mysql -p 443:443 --privileged=true -e DB_HOST=mysql -e DB_USER=zm -e DB_NAME=zm -e DB_PW=uberpass hrwebasst/docker-zoneminder
+    (Currently the root password needs to be the same as the MYSQL_PASSWORD just FYI)
     There is an issue with shared memory in zoneminder with adding cameras. When you add one part of the 64M of shared memory gets used. You can see this with a simple df -h inside the container.
 
     In order to fix this we run the docker in privileged mode and on startup it runs the following:
