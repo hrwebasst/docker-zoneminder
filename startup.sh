@@ -19,7 +19,7 @@ else
         /sbin/zm.sh &
 fi
 
-if [ -v DB_HOST ]; then
+if [ -v MYSQL_PORT_3306_TCP_ADDR ]; then
 	sed -i -e 's/^ZM_DB_HOST=localhost/ZM_DB_HOST='"$MYSQL_PORT_3306_TCP_ADDR"'/' /etc/zm/zm.conf
  	sed -i -e 's/^ZM_DB_NAME=zm/ZM_DB_NAME='"$MYSQL_ENV_MYSQL_DATABASE"'/' /etc/zm/zm.conf
  	sed -i -e 's/^ZM_DB_USER=zmuser/ZM_DB_USER='"$MYSQL_ENV_MYSQL_USER"'/' /etc/zm/zm.conf
@@ -29,8 +29,8 @@ if [ -v DB_HOST ]; then
 
         fix_strict="SET @@global.sql_mode= ''"
 	count='select count(*) from information_schema.tables where table_type = "BASE TABLE" and table_schema = "${MYSQL_ENV_MYSQL_DATABASE}"'
-	mysql -h $MYSQL_PORT_3306_TCP_ADDR -u $MYSQL_ENV_MYSQL_USER $MYSQL_ENV_MYSQL_DATABASE -e "$count" > /var/lib/mysql/mysql_status.txt 
-	stat=`cat /var/lib/mysql/mysql_status.txt | tail -1`
+	mysql -h $MYSQL_PORT_3306_TCP_ADDR -u $MYSQL_ENV_MYSQL_USER $MYSQL_ENV_MYSQL_DATABASE -e "$count" > /mysql_status.txt 
+	stat=`cat /mysql_status.txt | tail -1`
 	rm -rf /var/lib/mysql/mysql_status.txt
 	if [ "$stat" = "0" ]; then
         mysql -u root -h $MYSQL_PORT_3306_TCP_ADDR $MYSQL_ENV_MYSQL_DATABASE -e "$fix_strict"
