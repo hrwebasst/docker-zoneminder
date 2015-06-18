@@ -1,16 +1,7 @@
 #!/bin/bash
 
-  DEBIAN_FRONTEND=noninteractive apt-get install -y -q mysql-server zoneminder
-  /usr/bin/mysqld_safe &
-  sleep 10s
-
-  mysqladmin -u root password mysqlpsswd
-  mysqladmin -u root -pmysqlpsswd reload
-  mysqladmin -u root -pmysqlpsswd create zm
-  echo "grant select,insert,update,delete on zm.* to 'zmuser'@localhost identified by 'zmpass'; flush privileges; " | mysql -u root -pmysqlpsswd
-  mysql -u root -pmysqlpsswd < /usr/share/zoneminder/db/zm_create.sql
-  killall mysqld
-
+  DEBIAN_FRONTEND=noninteractive apt-get install -y -q zoneminder
+  
  #to fix error relate to ip address of container apache2
  echo "ServerName localhost" | sudo tee /etc/apache2/conf-available/fqdn.conf
  ln -s /etc/apache2/conf-available/fqdn.conf /etc/apache2/conf-enabled/fqdn.conf

@@ -20,18 +20,21 @@ I also recommend adding yourself to the docker group so that you don't have to t
 
 If you're lazy and don't want to build it yourself just run this and throw a party on camera:
 
-    $ docker run -d -e MYSQL_ROOT_PASSWORD=uberpass -e MYSQL_DATABASE=zm -e MYSQL_USER=zm -e MYSQL_PASSWORD=my-secret-pass --name=mysql mysql
-    $ docker run -d --name=zoneminder --link=mysql:mysql -p 443:443 --privileged=true -e DB_HOST=mysql -e DB_USER=zm -e DB_NAME=zm -e DB_PW=uberpass hrwebasst/docker-zoneminder
-    (Currently the root password needs to be the same as the MYSQL_PASSWORD just FYI)
+    $ docker run -d -e MYSQL_ROOT_PASSWORD=uberpass -e MYSQL_DATABASE=zm -e MYSQL_USER=zm -e MYSQL_PASSWORD=my-secret-pass --name=zm-mysql mysql
+    $ docker run -d --name=zoneminder --link=zm-mysql:mysql -p 443:443 --privileged=true hrwebasst/docker-zoneminder
+
+(NOTE that we don't pass any mysql parameters to postgres aside from the link. This will pass the proper env vars to zoneminder ;) )
+
+### MISC
+
     There is an issue with shared memory in zoneminder with adding cameras. When you add one part of the 64M of shared memory gets used. You can see this with a simple df -h inside the container.
 
     In order to fix this we run the docker in privileged mode and on startup it runs the following:
     umount /dev/shm
-mount -t tmpfs -o rw,nosuid,nodev,noexec,relatime,size=${MEM:-2048M} tmpfs /dev/shm
+
+ mount -t tmpfs -o rw,nosuid,nodev,noexec,relatime,size=${MEM:-2048M} tmpfs /dev/shm
 
     if you'd like to change the amount of memory shared for camera usage then pass in the MEM environment variable when you run the host.
-
-### Note
 
     This container does not host a database and must be connected to an external MYSQL server. Mysql recently became incompatible with zoneminder and I had to add the following to modify strict mode:
     SET @@global.sql_mode= '';

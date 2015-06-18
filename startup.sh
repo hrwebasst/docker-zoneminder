@@ -20,21 +20,21 @@ else
 fi
 
 if [ -v DB_HOST ]; then
-	sed -i -e 's/^ZM_DB_HOST=localhost/ZM_DB_HOST='"$DB_HOST"'/' /etc/zm/zm.conf
- 	sed -i -e 's/^ZM_DB_NAME=zm/ZM_DB_NAME='"$DB_NAME"'/' /etc/zm/zm.conf
- 	sed -i -e 's/^ZM_DB_USER=zmuser/ZM_DB_USER='"$DB_USER"'/' /etc/zm/zm.conf
- 	sed -i -e 's/^ZM_DB_PASS=zmpass/ZM_DB_PASS='"$DB_PW"'/' /etc/zm/zm.conf
+	sed -i -e 's/^ZM_DB_HOST=localhost/ZM_DB_HOST='"$MYSQL_PORT_3306_TCP_ADDR"'/' /etc/zm/zm.conf
+ 	sed -i -e 's/^ZM_DB_NAME=zm/ZM_DB_NAME='"$MYSQL_ENV_MYSQL_DATABASE"'/' /etc/zm/zm.conf
+ 	sed -i -e 's/^ZM_DB_USER=zmuser/ZM_DB_USER='"$MYSQL_ENV_MYSQL_USER"'/' /etc/zm/zm.conf
+ 	sed -i -e 's/^ZM_DB_PASS=zmpass/ZM_DB_PASS='"$MYSQL_ENV_MYSQL_PASSWORD"'/' /etc/zm/zm.conf
         echo '[client]' > /root/.my.cnf
- 	echo "password=${DB_PW}" >> /root/.my.cnf
+ 	echo "password=${MYSQL_ENV_MYSQL_ROOT_PASSWORD}" >> /root/.my.cnf
 
         fix_strict="SET @@global.sql_mode= ''"
-	count='select count(*) from information_schema.tables where table_type = "BASE TABLE" and table_schema = "${DB_NAME}"'
-	mysql -h $DB_HOST -u $DB_USER $DB_NAME -e "$count" > /var/lib/mysql/mysql_status.txt 
+	count='select count(*) from information_schema.tables where table_type = "BASE TABLE" and table_schema = "${MYSQL_ENV_MYSQL_DATABASE}"'
+	mysql -h $MYSQL_PORT_3306_TCP_ADDR -u $MYSQL_ENV_MYSQL_USER $MYSQL_ENV_MYSQL_DATABASE -e "$count" > /var/lib/mysql/mysql_status.txt 
 	stat=`cat /var/lib/mysql/mysql_status.txt | tail -1`
 	rm -rf /var/lib/mysql/mysql_status.txt
 	if [ "$stat" = "0" ]; then
-        mysql -u root -h $DB_HOST $DB_NAME -e "$fix_strict"
-	mysql -u $DB_USER -h $DB_HOST $DB_NAME < /usr/share/zoneminder/db/zm_create.sql
+        mysql -u root -h $MYSQL_PORT_3306_TCP_ADDR $MYSQL_ENV_MYSQL_DATABASE -e "$fix_strict"
+	mysql -u $MYSQL_ENV_MYSQL_USER -h $MYSQL_PORT_3306_TCP_ADDR $MYSQL_ENV_MYSQL_DATABASE < /usr/share/zoneminder/db/zm_create.sql
 	fi
 
 
